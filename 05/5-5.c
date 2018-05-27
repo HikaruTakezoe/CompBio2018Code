@@ -16,7 +16,6 @@ for(k=1;k<=1000;){
   r=rand()%(N-M+1)+M;
   x=x+r;
   if(x>=100){
-    //printf("%d ",i);
     a[k]=i;
     break;
  }
