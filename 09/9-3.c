@@ -1,86 +1,188 @@
 #include <stdio.h>
 
-int rule(int cell1, int cell2,int cell3);
+#define size 100
+
+int rule(int x, int y,int cell[][size]);
+
 int main(void){
-  int t,i;
+  int t,i,j;
   int cell[100][100];
-  int tempcell[100][100];
+  int temp[100][100];
 
   FILE *fp;
-  fp=fopen("CGLinput.csv","w");
+  fp=fopen("CGL.csv","w");
 
-  for(i=0;i<100;i++){
-  cell[i]=0;
-  tempcell[i]=0;
-  }
+  FILE *input;
+  input=fopen("CGLinput.csv","r");
 
- cell[50]=1;
- for(i=0;i<100;i++){
-   fprintf(fp,"%d",cell[i]);
-   if(i!=99){
-      fprintf(fp, ",");
-  }
-}
-fprintf(fp,"\n");
-
-for(t=1;t<100;t++){
-tempcell[0]=rule(cell[99],cell[0],cell[1]);
-
-  for(i=1;i<99;i++){
-  tempcell[i]=rule(cell[i-1],cell[i],cell[i+1]);
-  }
-
-tempcell[99]=rule(cell[98],cell[99],cell[0]);
-
- for(i=0;i<100;i++){
-    cell[i]=tempcell[i];
-    fprintf(fp,"%d",cell[i]);
-    if(i!=99){
-       fprintf(fp, ",");
+  for(i=0;i<size;i++){
+    for(j=0;j<size;j++){
+      cell[i][j]=0;
+      temp[i][j]=0;
     }
-   }
-   fprintf(fp,"\n");
-}
- fclose(fp);
- return 0;
+  }
+
+
+  cell[50][50]=1;
+  cell[51][52]=1;
+  cell[50][52]=1;
+  cell[49][52]=1;
+  cell[49][51]=1;
+
+  for(i=0;i<size;i++){
+    for(j=0;j<size;j++){
+      fscanf(input,"%d",&cell[i][j]);
+      //printf("%d",cell[i][j]);
+      if(j!=size-1){
+	fscanf(input,",");
+      }
+    }
+  }
+  fclose(input);
+
+  for(i=0;i<size;i++){
+    for(j=0;j<size;j++){
+      fprintf(fp,"%d",cell[i][j]);
+      if(j!=size-1){
+        fprintf(fp,", ");
+      }
+    }
+    fprintf(fp,"\n");
+  }
+
+  for(t=1;t<200;t++){
+
+    for(i=0;i<size;i++){
+      for(j=0;j<size;j++){
+	temp[i][j]=rule(i,j,cell);
+      }
+    }
+
+    for(i=0;i<size;i++){
+      for(j=0;j<size;j++){
+	cell[i][j]=temp[i][j];
+	fprintf(fp,"%d",cell[i][j]);
+	if(j!=size-1){
+	  fprintf(fp,", ");
+	}
+      }
+    fprintf(fp,"\n");
+    }
+  }
+  fclose(fp);
+  return 0;
 }
 
-int rule(int cell1, int cell2,int cell3){
- if(cell1==1){
-  if(cell2==1){
-   if(cell3==1){
-        return 1;
-   }
-   else if(cell3==0) {
-   return 0;
-   }
-  }
-else if(cell2==0){
-     if(cell3==1){
-     return 1;
-     }
-     else if(cell3==0){
-     return 1;
-     }
-  }
-}
-else if(cell1==0){
-   if(cell2==1){
-      if(cell3==1){
-      return 0;
+int rule(int x, int y, int cell[][size]){
+  int count=0;
+  int i,j;
+  if((x!=0)&&(x!=size-1)&&(y!=0)&&(y!=size-1)){
+    for(i=x-1;i<=x+1;i++){
+      for(j=y-1;j<=y+1;j++){
+	count+=cell[i][j];
       }
-      else if(cell3==0){
-      return 0;
+    }
+    count-=cell[x][y];
+  }
+  else{
+    //x=0
+    if(x==0&&y!=0&&y!=size-1){
+      for(i=x;i<=x+1;i++){
+	for(j=y-1;j<=y+1;j++){
+	  count-=cell[i][j];
+	}
       }
-   }
-   else if(cell2==0){
-       if(cell3==1){
-       return 1;
-       }
-       else if(cell3==0){
-       return 0;
-       }
-   }
-}
-return -1;
+      for(j=y-1;j<=y+1;j++){
+	count+=cell[size-1][j];
+      }
+      count-=cell[x][y];
+    }
+    //x=size-1
+    else if(x==size-1&&y!=0&&y!=size-1){
+      for(i=x-1;i<=x;i++){
+	for(j=y-1;j<=y+1;j++){
+          count+=cell[i][j];
+        }
+      }
+      for(j=y-1;j<=y+1;j++){
+        count+=cell[0][j];
+      }
+      count-=cell[x][y];
+    }
+    //y=0
+    else if(x!=0&&x!=size-1&&y==0){
+      for(i=x-1;i<=x+1;i++){
+	for(j=y;j<=y+1;j++){
+	  count+=cell[i][j];
+	}
+	count+=cell[i][0];
+      }
+      count=-cell[x][y];
+    }
+    //y=size-1
+    else if(x!=0&&x!=size-1&&y==size-1){
+      for(i=x-1;i<=x+1;i++){
+	for(j=y;j<=y+1;j++){
+	  count+=cell[i][j];
+	}
+	count+=cell[i][size-1];
+      }
+      count-=cell[x][y];
+    }
+
+    //x=0 y=0
+    else if(x==0&&y==0){
+      count+=cell[0][1];
+      count+=cell[1][0];
+      count+=cell[1][1];
+      count+=cell[size-1][0];
+      count+=cell[0][size-1];
+      count+=cell[size-1][1];
+      count+=cell[1][size-1];
+      count+=cell[size-1][size-1];
+    }
+    //x=0 y=size-1
+    else if(x==0&&y==size-1){
+      count+=cell[1][0];
+      count+=cell[1][size-1];
+      count+=cell[1][size-2];
+      count+=cell[0][size-2];
+      count+=cell[size-1][size-2];
+      count+=cell[size-1][size-1];
+      count+=cell[size-1][0];
+      count+=cell[0][0];
+    }
+    //x=size-1 y=0
+    else if(x==size-1&&y==0){
+      count+=cell[0][1];
+      count+=cell[size-1][1];
+      count+=cell[size-2][1];
+      count+=cell[size-2][0];
+      count+=cell[size-2][size-1];
+      count+=cell[size-1][size-1];
+      count+=cell[0][size-1];
+      count+=cell[0][0];
+    }
+    //x=size-1 y=size-1
+    else if(x==size-1&&y==size-1){
+      count+=cell[0][0];
+      count+=cell[0][size-1];
+      count+=cell[0][size-2];
+      count+=cell[size-1][size-2];
+      count+=cell[size-2][size-2];
+      count+=cell[size-2][size-1];
+      count+=cell[size-2][0];
+      count+=cell[size-1][0];
+    }
+  }
+  //printf("%d",count);
+  if(count==3){
+    return 1;
+  }
+  else if(count==2){
+    return cell[x][y];
+  }
+  else {
+    return 0;
+  }
 }
