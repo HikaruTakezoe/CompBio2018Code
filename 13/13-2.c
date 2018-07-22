@@ -14,10 +14,10 @@ int main(void){
  double a,b,c,d;
  double e[5];
  double ran, ran2;
- a=5;
+ a=4;
  b=0.1;
  c=0.02;
- d=4;
+ d=3;
  x[0]=500;
  x[1]=20;
  t=0.0;
